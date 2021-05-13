@@ -1,0 +1,36 @@
+version: "2"
+services:
+  php:
+    build:
+      context: .
+      dockerfile: ./php/Dockerfile
+    volumes:
+      - ./www/html:/var/www/html
+    depends_on:
+      - db
+
+    networks:
+      - php-network
+
+  mysql:
+    container_name: tsustumi_mysql
+    build:
+      context: ./
+      dockerfile: ./mysql/Dockerfile
+    ports:
+      - "3306:3306"
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --default-authentication-plugin=mysql_native_password
+    environment:
+      TZ: "Asia/Tokyo"
+      MYSQL_DATABASE: db
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - "./mysql/init:/docker-entrypoint-initdb.d"
+    networks:
+      - php-network
+
+networks:
+  php-network:
+    driver: bridge
